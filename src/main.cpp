@@ -45,8 +45,8 @@ using Lookup = std::map<std::string, MyClass::Ptr>;
 #define max(a, b) a > b ? a : b 
 
 void usage_of_macros(){
-    float value1 = 2.7; 
-    float value2 = 3.4; 
+    float value1 = 2.7;
+    float value2 = 3.4;
     float result = max(value1, value2); 
     // The above line is the same as:
     float result1 = value1 > value2 ? value1 : value2; 
