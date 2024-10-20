@@ -10,7 +10,7 @@ typedef unsigned int UINT;
 
 // ID //
 
-// Can be defined  in it's own file to be shared across files
+// Can be defined  in its own file to be shared across files
 using ID = uint16_t;
 
 // Example class that shows the use of using
@@ -44,7 +44,7 @@ using Lookup = std::map<std::string, MyClass::Ptr>;
 // The definition 
 #define max(a, b) a > b ? a : b 
 
-void usage_of_macros(void){
+void usage_of_macros(){
     float value1 = 2.7; 
     float value2 = 3.4; 
     float result = max(value1, value2); 
@@ -55,24 +55,24 @@ void usage_of_macros(void){
     float result2 = max(value1, value2) + 0.4; 
 }
 
-#define FIELD(TYPE, NAME)      \
-public:                        \
-    void Set##NAME(TYPE v){    \
-        m_##NAME = v;          \
-    }                          \
-    TYPE Get##NAME(){          \
-        return m_##NAME;       \
-    };                         \
-private:                       \
-    TYPE m_##NAME
+#define FIELD(TYPE, NAME, initVal) \
+public:                            \
+    void Set##NAME(TYPE v){        \
+        m_##NAME = v;              \
+    }                              \
+    TYPE Get##NAME(){              \
+        return m_##NAME;           \
+    };                             \
+private:                           \
+    TYPE m_##NAME{initVal}
 
 //Seriously simplifies the definition of data classes
 class DataClass{
-    FIELD(int, One);
-    FIELD(float, Two);
+    FIELD(int, One, 0);
+    FIELD(float, Two, 0);
 };
 
 
-int main(void){
+int main(){
     cout << "Hallo world" << endl;
 }
