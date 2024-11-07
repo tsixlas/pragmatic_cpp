@@ -72,7 +72,23 @@ class DataClass{
     FIELD(float, Two, 0);
 };
 
+//enable_shared_from_this
+// Great functionality when required but comes with a cost. Consider factory method to ensure smooth operation
+class voiceRecorder: public enable_shared_from_this<voiceRecorder>{
+    struct Private{explicit Private() = default;};
+public:
+    voiceRecorder(Private){} //Private constructor
+
+    using Ptr = std::shared_ptr<voiceRecorder>;
+
+    //Factory method ensures object is always wrapped around a shared pointer that the enable_shared_from_this requires
+    static Ptr Create(){
+        return std::make_shared<voiceRecorder>(Private());
+    }
+};
+
 
 int main(){
     cout << "Hallo world" << endl;
+    voiceRecorder::Ptr obj =  voiceRecorder::Create();
 }
