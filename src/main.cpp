@@ -4,6 +4,8 @@
 #include <map>
 #include <memory>
 
+#include "../include/spec.h"
+
 using namespace std;
 
 typedef unsigned int UINT;
@@ -88,7 +90,18 @@ public:
 };
 
 
+
 int main(){
     cout << "Hallo world" << endl;
     voiceRecorder::Ptr obj =  voiceRecorder::Create();
+
+    // Demonstate 
+    myClass c;
+
+    std::cout << "Show some function specialization" << std::endl;
+    int arg = 6;
+    c.foo(arg);
+    c.foo("test");
+    c.foo(3.14f);
+    c.foo(M_PI);
 }

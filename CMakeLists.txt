@@ -3,4 +3,7 @@ project(PragmaticCPP LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(PragmaticCPP src/main.cpp)
+file(GLOB SourceFiles CONFIGURE_DEPENDS "src/*")
+add_executable(PragmaticCPP ${SourceFiles})
+
+include_directories(include)
