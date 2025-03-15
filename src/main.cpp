@@ -1,11 +1,8 @@
-#include <iostream>
-#include <cstdint>
 #include <unordered_map>
 #include <map>
 #include <memory>
-#include <list>
 
-#include "../include/spec.h"
+#include "spec.h"
 
 using namespace std;
 
@@ -114,7 +111,7 @@ public:                                     \
         std::cout << #sound << std::endl;}  \
 
 class animal_macro{
-    registerAnimal(Cow, Moo);
+    registerAnimal(Cow, Moo)
 };
 
 int main(){
@@ -131,7 +128,7 @@ int main(){
     c.foo(3.14f);
     c.foo(M_PI);
 
-    // Inheritance vs static definition
+    // Inheritance vs static definition and the help of macros
 
     //Instantiate an animal
     Cow cow;
