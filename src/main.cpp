@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <map>
 #include <memory>
+#include <list>
 
 #include "../include/spec.h"
 
@@ -89,7 +90,32 @@ public:
     }
 };
 
+class animal_inheritance{
+public:
+    virtual void speak()=0;
+};
+class Cow: public animal_inheritance{
+public:
+    void speak() override{
+        std::cout << "Moo" << endl;
+    }
+};
 
+class animal_static{
+public:
+    void speakCow(){
+        std::cout << "Moo" << endl;
+    }
+};
+
+#define registerAnimal(animal, sound)       \
+public:                                     \
+    void speak##animal(){                   \
+        std::cout << #sound << std::endl;}  \
+
+class animal_macro{
+    registerAnimal(Cow, Moo);
+};
 
 int main(){
     cout << "Hallo world" << endl;
@@ -104,4 +130,18 @@ int main(){
     c.foo("test");
     c.foo(3.14f);
     c.foo(M_PI);
+
+    // Inheritance vs static definition
+
+    //Instantiate an animal
+    Cow cow;
+    cow.speak();
+
+    //If a list of animals is not what you need, you can have a static function to wrap around all of them
+    animal_static animals;
+    animals.speakCow();
+
+    //You can have the same effect with the more elegant macro version
+    animal_macro animals_macro;
+    animals_macro.speakCow();
 }
