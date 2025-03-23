@@ -2,8 +2,8 @@
 Examples from the Pragmatic C++ development book
 
 # Installation
-sudo apt install -y protobuf-compiler
-mkdir build
-cd build
-cmake ..
-make
+sudo apt install -y protobuf-compiler<br />
+mkdir build<br />
+cd build<br />
+cmake ..<br />
+make<br />
