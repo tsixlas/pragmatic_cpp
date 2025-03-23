@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "spec.h"
+#include "dataCenter.h"
 
 using namespace std;
 
@@ -115,30 +116,33 @@ class animal_macro{
 };
 
 int main(){
-    cout << "Hallo world" << endl;
-    voiceRecorder::Ptr obj =  voiceRecorder::Create();
+    // cout << "Hallo world" << endl;
+    // voiceRecorder::Ptr obj =  voiceRecorder::Create();
 
-    // Demonstate 
-    myClass c;
+    // // Demonstate 
+    // myClass c;
 
-    std::cout << "Show some function specialization" << std::endl;
-    int arg = 6;
-    c.foo(arg);
-    c.foo("test");
-    c.foo(3.14f);
-    c.foo(M_PI);
+    // std::cout << "Show some function specialization" << std::endl;
+    // int arg = 6;
+    // c.foo(arg);
+    // c.foo("test");
+    // c.foo(3.14f);
+    // c.foo(M_PI);
 
-    // Inheritance vs static definition and the help of macros
+    // // Inheritance vs static definition and the help of macros
 
-    //Instantiate an animal
-    Cow cow;
-    cow.speak();
+    // //Instantiate an animal
+    // Cow cow;
+    // cow.speak();
 
-    //If a list of animals is not what you need, you can have a static function to wrap around all of them
-    animal_static animals;
-    animals.speakCow();
+    // //If a list of animals is not what you need, you can have a static function to wrap around all of them
+    // animal_static animals;
+    // animals.speakCow();
 
-    //You can have the same effect with the more elegant macro version
-    animal_macro animals_macro;
-    animals_macro.speakCow();
+    // //You can have the same effect with the more elegant macro version
+    // animal_macro animals_macro;
+    // animals_macro.speakCow();
+
+
+    SerializeProto();
 }
