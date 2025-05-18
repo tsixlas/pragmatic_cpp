@@ -47,5 +47,4 @@ int main() {
     std::cout << "CPU frequency GHz: " << info.get<float>(dataTypes::CPUfreqGhz) << std::endl;
     std::cout << "Memory Bytes: " << info.get<int>(dataTypes::memoryBytes) << std::endl;
     std::cout << "Storage Bytes: " << info.get<int>(dataTypes::storageBytes) << std::endl;
-    return 0;
 }

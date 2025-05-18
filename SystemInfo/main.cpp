@@ -34,5 +34,4 @@ int main() {
     std::cout << "CPU frequency GHz: " << info.get_CPUfreqGhz() << std::endl;
     std::cout << "Memory Bytes: " << info.get_memoryBytes() << std::endl;
     std::cout << "Storage Bytes: " << info.get_storageBytes() << std::endl;
-    return 0;
 }
