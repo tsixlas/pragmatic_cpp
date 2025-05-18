@@ -29,4 +29,9 @@ private:
 };
 
 int main() {
+    MyFieldClass myClass;
+    myClass.SetOne(4);
+    myClass.SetTwo(3.14);
+    std::cout << "Field One of myClass is: " << myClass.GetOne() << std::endl;
+    std::cout << "Field Two of myClass is: " << myClass.GetTwo() << std::endl;
 }
