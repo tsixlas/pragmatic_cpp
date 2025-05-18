@@ -33,7 +33,6 @@ private:
     std::any data[5];
 };
 
-
 int main() {
     SystemInfoScalable info;
     info.set<float>(dataTypes::temperatureCelcius, 10);

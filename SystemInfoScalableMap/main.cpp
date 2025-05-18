@@ -10,7 +10,6 @@ enum class dataTypes {
     storageBytes = 4
 };
 
-
 class SystemInfoScalableMap {
 public:
     SystemInfoScalableMap() {
@@ -34,7 +33,6 @@ public:
 private:
     std::unordered_map<dataTypes, std::any> m_map;
 };
-
 
 int main() {
     SystemInfoScalableMap info;
