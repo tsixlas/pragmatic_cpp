@@ -1,5 +1,4 @@
 #include <iostream>
-#include "ConstExpressions.h"
 
 #define LOG( MESSAGE )                                          \
 {                                                               \
@@ -7,11 +6,5 @@
 }
 
 int main() {
-    // Simple loggin
     LOG("The cat sat on the mat")
-
-    constexpr unsigned int LogLevel = INFO_LEVEL;
-    LOG_DEBUG("A debug message")
-    LOG_INFO("An info message")
-    LOG_ERROR("An error message")
 }
