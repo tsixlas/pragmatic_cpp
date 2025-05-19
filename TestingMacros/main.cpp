@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 
 #define FIELD( TYPE, NAME )             \
     public:                             \
