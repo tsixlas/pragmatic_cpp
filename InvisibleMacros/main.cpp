@@ -9,7 +9,7 @@ public:
         : m_message(message + "\nFile:" + file + " Line: " + std::to_string(line) + " Function: " + function)
     {}
 
-    [[nodiscard]] const char *what() const noexcept override {
+    const char *what() const noexcept override {
         return m_message.c_str();
     }
 
@@ -35,7 +35,7 @@ int main(){
     try{
         p = std::make_shared<MyObject>();
     } catch ( std::bad_alloc &){
-        throw BadMemoryAllocation( __FILE__, __LINE__, __FUNCTION__);
+        throw BadMemoryAllocation(__FILE__, __LINE__, __FUNCTION__);
     } catch( std::exception &ex ){
         std::cerr << ex.what() << std::endl;
     }

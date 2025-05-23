@@ -1,8 +1,8 @@
 #include <iostream>
 
-#define FIELD( TYPE, NAME )             \
+#define FIELD(TYPE, NAME)               \
     public:                             \
-        void Set##NAME( const TYPE v ){ \
+        void Set##NAME(const TYPE v){   \
             m_##NAME = v;               \
         }                               \
         TYPE const Get##NAME() {        \

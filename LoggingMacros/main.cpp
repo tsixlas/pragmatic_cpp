@@ -1,6 +1,6 @@
 #include <iostream>
 
-#define LOG( MESSAGE )                                          \
+#define LOG(MESSAGE)                                            \
 {                                                               \
     std::cout << __FUNCTION__ << ": " << MESSAGE << std::endl;  \
 }
