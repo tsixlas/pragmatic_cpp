@@ -36,8 +36,9 @@ public:
     }
 
     void Reset() { m_position = 0; }
-
-public:
+    uint8_t* getBuffer(){return m_buffer;}
+    uint32_t getPosition(){return m_position;}
+protected:
     uint32_t m_position{0};
     uint8_t m_buffer[512]{""};
 };
@@ -104,11 +105,11 @@ public:
             setter->Set(value, m_translator);
         }
         return std::make_shared<Message>(
-            std::vector(m_translator.m_buffer, m_translator.m_buffer + m_translator.m_position));
+            std::vector(m_translator.getBuffer(), m_translator.getBuffer() + m_translator.getPosition()));
     }
     bool Deserialize(T & value, Message & msg) override{
         try{
-            std::copy(msg.begin(), msg.end(), m_translator.m_buffer);
+            std::copy(msg.begin(), msg.end(), m_translator.getBuffer());
             m_translator.Reset();
             for (const auto& getter: m_GetterAndSetters) {
                 getter->Get(value, m_translator);
