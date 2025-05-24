@@ -38,7 +38,7 @@ public:
             m_hasData.wait(l, [this] { return HasData(); }); {
                 std::shared_ptr<Queue> copyQueue = m_buffer;
                 m_buffer=std::make_shared<Queue>();
-                for (auto item: (*copyQueue)) {
+                for (const auto& item: (*copyQueue)) {
                     Handle(*item);
                 }
             }
@@ -105,7 +105,7 @@ protected:
         }
     }
 
-    void Add(Type index, CallbackFunctor<T>::Ptr c) { m_handlers[index] = c; }
+    void Add(Type index, typename CallbackFunctor<T>::Ptr c) { m_handlers[index] = c; }
 
 private:
     using Handlers = std::unordered_map<Type, typename CallbackFunctor<T>::Ptr>;
@@ -141,7 +141,7 @@ public:
             ( [this](CHILD & obj ){HANDLER(obj);}));                                    \
             Add( c.Type(), p );                                                         \
     }catch( std::bad_alloc & ) {                                                        \
-        BadMemoryAllocation( __FILE__, __LINE__, __FUNCTION__ );                        \
+        throw BadMemoryAllocation( __FILE__, __LINE__, __FUNCTION__ );                  \
     }                                                                                   \
 }                                                                                       \
 
@@ -177,9 +177,9 @@ public:
         ADD_HANDLER(Object, MyObjectThree, Handle)
     }
 
-    uint32_t CountOne() { return m_countOne; }
-    uint32_t CountTwo() { return m_countTwo; }
-    uint32_t CountThree() { return m_countThree; }
+    uint32_t CountOne() const { return m_countOne; }
+    uint32_t CountTwo() const { return m_countTwo; }
+    uint32_t CountThree() const { return m_countThree; }
 
 protected:
     void Handle(MyObjectOne &obj) { m_countOne++; }
