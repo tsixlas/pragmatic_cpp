@@ -1,5 +1,6 @@
 #include <cstring>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -19,14 +20,12 @@ public:
     template<typename T>
     T Get() { return T(); }
 
-
-
     void Set(uint32_t value) {
         std::memcpy(m_buffer + m_position, &value, 4);
         m_position += 4;
     }
 
-    void Set(std::string value) {
+    void Set(const std::string &value) {
         uint32_t size = value.length();
         Set(size);
         for (auto i = 0; i < size; i++) {
@@ -37,9 +36,9 @@ public:
 
     void Reset() { m_position = 0; }
 
-protected:
+public:
     uint32_t m_position{0};
-    uint8_t m_buffer[512];
+    uint8_t m_buffer[512]{""};
 };
 
 template<>
@@ -64,7 +63,7 @@ template< typename OBJ >
 class IGetterSetter{
 public:
     using Ptr = std::shared_ptr<IGetterSetter>;
-    ~IGetterSetter() = default;
+    virtual ~IGetterSetter() = default;
     virtual void Get(OBJ &obj, Translator & t) = 0;
     virtual void Set(OBJ &obj, Translator & t) = 0;
 };
@@ -98,7 +97,8 @@ public:
         for( auto setter: m_GetterAndSetters){
             setter->Set( value, m_translator);
         }
-        return m_translator.Get<T>();
+        return std::make_shared<Message>(
+            std::vector(m_translator.m_buffer, m_translator.m_buffer + m_translator.m_position));
     }
     bool Deserialize( T & value, Message & msg ) override{
         try{
@@ -192,6 +192,7 @@ class Movie{
     Add( p );                                                                   \
 }                                                                               \
 
+template< typename T>
 class MovieTranslator : public GetSetTranslator<Movie> {
 public:
     MovieTranslator() {
@@ -202,4 +203,22 @@ public:
 
 
 
-int main(){}
+int main() {
+    Movie myMovie;
+    myMovie.SetDirector("My phantasy director");
+    myMovie.SetTitle("My phantasy title");
+    std::cout << "Director: " << myMovie.GetDirector() << std::endl;
+    std::cout << "Title: " << myMovie.GetTitle() << std::endl;
+
+    MovieTranslator<Movie> myTranslator;
+    MessagePtr myMessage = myTranslator.Serialize(myMovie);
+    std::cout << "String representation: " << std::string(myMessage->begin(), myMessage->end()) << std::endl;
+
+    // myMessage is sent and received through TCP/IP
+
+    MovieTranslator<Movie> myReceiverTranslator;
+    Movie myReceivedMovie;
+    myReceiverTranslator.Deserialize(myReceivedMovie, *myMessage);
+    std::cout << "Director: " << myReceivedMovie.GetDirector() << std::endl;
+    std::cout << "Title: " << myReceivedMovie.GetTitle() << std::endl;
+}
