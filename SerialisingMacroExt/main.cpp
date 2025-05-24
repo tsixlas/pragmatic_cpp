@@ -19,12 +19,14 @@ public:
     template<typename T>
     T Get() { return T(); }
 
+
+
     void Set(uint32_t value) {
         std::memcpy(m_buffer + m_position, &value, 4);
         m_position += 4;
     }
 
-    void Set(const std::string &value) {
+    void Set(std::string value) {
         uint32_t size = value.length();
         Set(size);
         for (auto i = 0; i < size; i++) {
@@ -37,8 +39,26 @@ public:
 
 protected:
     uint32_t m_position{0};
-    uint8_t m_buffer[512]{""};
+    uint8_t m_buffer[512];
 };
+
+template<>
+uint32_t Translator::Get() {
+    uint32_t local;
+    std::memcpy(&local, m_buffer + m_position, 4);
+    m_position += 4;
+    return local;
+}
+
+template<>
+std::string Translator::Get() {
+    std::string str;
+    uint32_t size = Get<uint32_t>();
+    for (auto i = 0; i < size; i++) {
+        str += (char) m_buffer[m_position + i];
+    }
+    return str;
+}
 
 template< typename OBJ >
 class IGetterSetter{
@@ -78,11 +98,11 @@ public:
         for( auto setter: m_GetterAndSetters){
             setter->Set( value, m_translator);
         }
-        return m_translator.Access();
+        return m_translator.Get<T>();
     }
     bool Deserialize( T & value, Message & msg ) override{
         try{
-            m_translator.Reset(msg);
+            m_translator.Reset();
             for( auto getter: m_GetterAndSetters){
                 getter->Get( value, m_translator);
             }
@@ -93,7 +113,7 @@ public:
     }
     void Add( IGetterSetterPtr gs ){ m_GetterAndSetters.push_back( gs );}
 private:
-     T m_translator;
+     Translator m_translator;
     using GetSetList = std::vector<IGetterSetterPtr>;
     GetSetList m_GetterAndSetters;
 };

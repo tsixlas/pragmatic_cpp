@@ -29,7 +29,7 @@ protected:
 };
 
 template<>
-inline uint32_t Translator::Get() {
+uint32_t Translator::Get() {
     uint32_t local;
     std::memcpy(&local, m_buffer + m_position, 4);
     m_position += 4;
@@ -37,7 +37,7 @@ inline uint32_t Translator::Get() {
 }
 
 template<>
-inline std::string Translator::Get() {
+std::string Translator::Get() {
     std::string str;
     uint32_t size = Get<uint32_t>();
     for (auto i = 0; i < size; i++) {
