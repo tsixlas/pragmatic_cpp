@@ -15,11 +15,11 @@ inline float Average(const int num, ...) {
     return average;
 }
 
-#define ARRAY_COUNT(...)                        \
-    (sizeof((int[]){__VA_ARGS__})/sizeof(int))  \
+#define ARRAY_COUNT(...) \
+    (sizeof((int[]){__VA_ARGS__})/sizeof(int))
 
-#define AVERAGE( ... )                              \
-    Average(ARRAY_COUNT(__VA_ARGS__), __VA_ARGS__); \
+#define AVERAGE( ... ) \
+    Average(ARRAY_COUNT(__VA_ARGS__), __VA_ARGS__);
 
 
 int main(){

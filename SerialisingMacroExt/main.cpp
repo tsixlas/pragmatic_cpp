@@ -62,7 +62,7 @@ std::string Translator::Get() {
     return str;
 }
 
-template< typename OBJ >
+template <typename OBJ>
 class IGetterSetter{
 public:
     using Ptr = std::shared_ptr<IGetterSetter>;
@@ -71,7 +71,7 @@ public:
     virtual void Set(OBJ &obj, Translator & t) = 0;
 };
 
-template< typename OBJ, typename T >
+template<typename OBJ, typename T>
 class GetterSetter: public IGetterSetter< OBJ>{
 public:
     using SetterFunc = std::function<void (OBJ &obj, T &)>;
@@ -104,11 +104,13 @@ public:
         for( auto setter: m_GetterAndSetters){
             setter->Set(value, m_translator);
         }
+        //TODO: Make the std::make_shared<Message> a function of the translator
         return std::make_shared<Message>(
             std::vector(m_translator.getBuffer(), m_translator.getBuffer() + m_translator.getPosition()));
     }
     bool Deserialize(T & value, Message & msg) override{
         try{
+            //TODO: Create a second reset that receives msg as an argument
             std::copy(msg.begin(), msg.end(), m_translator.getBuffer());
             m_translator.Reset();
             for (const auto& getter: m_GetterAndSetters) {

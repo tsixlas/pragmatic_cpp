@@ -14,7 +14,11 @@ public:
     using TPtr = std::shared_ptr<T>;
 
     WaitQueueTask() {
+        m_buffer = std::make_shared<Queue>();
         m_queueThread = std::thread(&WaitQueueTask::Process, this);
+
+        // Make sure the m_queueThread has been executed
+        usleep(100);
     }
 
     virtual ~WaitQueueTask() {
@@ -24,18 +28,17 @@ public:
 
     void Enqueue(TPtr &v) {
         std::unique_lock l(m_mutex);
-        m_buffer.push_back(v);
+        m_buffer->push_back(v);
         m_hasData.notify_one();
     }
 
     void Process() {
-        Queue copyQueue;
         while (!m_stopRunning) {
             std::unique_lock l(m_mutex);
             m_hasData.wait(l, [this] { return HasData(); }); {
-                copyQueue = m_buffer;
-                m_buffer.clear();
-                for (auto item: copyQueue) {
+                std::shared_ptr<Queue> copyQueue = m_buffer;
+                m_buffer=std::make_shared<Queue>();
+                for (auto item: (*copyQueue)) {
                     Handle(*item);
                 }
             }
@@ -53,12 +56,12 @@ protected:
     virtual void Handle(T &v) {
     }
 
-    void purge() { m_buffer.clear(); }
-    bool HasData() { return m_buffer.size(); }
+    void purge() { m_buffer->clear(); }
+    bool HasData() { return m_buffer->size(); }
 
 private:
     using Queue = std::deque<TPtr>;
-    Queue m_buffer;
+    std::shared_ptr<Queue> m_buffer;
     std::atomic<bool> m_stopRunning = {false};
     std::thread m_queueThread;
     std::condition_variable m_hasData;
@@ -68,20 +71,22 @@ private:
 template< class Object >
 class CallbackFunctor{
 public:
+    virtual ~CallbackFunctor() = default;
+
     using Ptr = std::shared_ptr<CallbackFunctor<Object>>;
     virtual void operator()( Object & obj) = 0;
 };
 
-template< class Concrete, class Object >
+template <class Concrete, class Object>
 class ConcreteCallbackFunctor: public CallbackFunctor<Object>{
 public:
-    using Callback = std::function< void ( Concrete & )>;
+    using Callback = std::function< void (Concrete &)>;
     ConcreteCallbackFunctor( Callback handler ):m_Handler(handler){}
-    void operator()(Object & obj ){
+    void operator()(Object & obj){
         try{
-            Concrete & c = dynamic_cast<Concrete & >( obj );
-            m_Handler( c );
-        }catch(... ){
+            Concrete& c = dynamic_cast<Concrete &>(obj);
+            m_Handler(c);
+        }catch(...){
         }
     }
 private:
@@ -187,8 +192,6 @@ private:
     uint32_t m_countThree{0};
 };
 
-
-
 int main(){
     MyDataQueue queue;
     for( int i = 0; i< 3;i++){
@@ -199,7 +202,9 @@ int main(){
         obj = std::make_shared<MyObjectThree>();
         queue.Enqueue(obj);
     }
+
     queue.Stop();
+
     std::cout << "Handled one: " << queue.CountOne() << std::endl;
     std::cout << "Handled two: " << queue.CountTwo() << std::endl;
     std::cout << "Handled three: " << queue.CountThree() << std::endl;
