@@ -54,8 +54,9 @@ std::string Translator::Get() {
     std::string str;
     uint32_t size = Get<uint32_t>();
     for (auto i = 0; i < size; i++) {
-        str += (char) m_buffer[m_position + i];
+        str += static_cast<char>(m_buffer[m_position + i]);
     }
+    m_position = m_position + size;
     return str;
 }
 
@@ -102,6 +103,7 @@ public:
     }
     bool Deserialize( T & value, Message & msg ) override{
         try{
+            std::copy(msg.begin(), msg.end(), m_translator.m_buffer);
             m_translator.Reset();
             for( auto getter: m_GetterAndSetters){
                 getter->Get( value, m_translator);
