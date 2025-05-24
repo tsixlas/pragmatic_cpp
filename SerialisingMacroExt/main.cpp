@@ -2,17 +2,18 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <utility>
 #include <vector>
 
 using Message = std::vector<uint8_t>;
 using MessagePtr = std::shared_ptr<Message>;
 
-template< typename T > class ITranslator{
+template<typename T> class ITranslator{
 public:
     virtual ~ITranslator() = default;
 
-    virtual MessagePtr Serialize( T &value ) = 0;
-    virtual bool Deserialize( T & value, Message & msg ) = 0;
+    virtual MessagePtr Serialize(T &value) = 0;
+    virtual bool Deserialize(T &value, Message &msg) = 0;
 };
 
 class Translator {
@@ -72,16 +73,20 @@ public:
 template< typename OBJ, typename T >
 class GetterSetter: public IGetterSetter< OBJ>{
 public:
-    using SetterFunc = std::function<void (OBJ & obj, T &)>;
-    using GetterFunc = std::function<void (OBJ & obj, T & )>;
-    GetterSetter( SetterFunc set, GetterFunc get ):m_setter(set),m_getter(get){}
-    void Get(OBJ &obj, Translator & t) override {
+    using SetterFunc = std::function<void (OBJ &obj, T &)>;
+    using GetterFunc = std::function<void (OBJ &obj, T &)>;
+
+    GetterSetter(SetterFunc set, GetterFunc get)
+        : m_setter(std::move(set)), m_getter(std::move(get)) {}
+
+    void Get(OBJ &obj, Translator &t) override {
         T value = t.Get<T>();
-        m_setter( obj, value );
+        m_setter(obj, value);
     }
-    void Set(OBJ &obj, Translator & t) override {
+
+    void Set(OBJ &obj, Translator &t) override {
         T value;
-        m_getter( obj, value );
+        m_getter(obj, value);
         t.Set(value);
     }
 private:
@@ -90,30 +95,31 @@ private:
 };
 
 template< typename T>
-class GetSetTranslator: public ITranslator< T >{
+class GetSetTranslator: public ITranslator<T>{
 public:
-    using IGetterSetterPtr = std::shared_ptr<IGetterSetter< T > >;
-    MessagePtr Serialize( T &value ) override{
+    using IGetterSetterPtr = std::shared_ptr<IGetterSetter<T>>;
+    MessagePtr Serialize(T &value) override{
         m_translator.Reset();
         for( auto setter: m_GetterAndSetters){
-            setter->Set( value, m_translator);
+            setter->Set(value, m_translator);
         }
         return std::make_shared<Message>(
             std::vector(m_translator.m_buffer, m_translator.m_buffer + m_translator.m_position));
     }
-    bool Deserialize( T & value, Message & msg ) override{
+    bool Deserialize(T & value, Message & msg) override{
         try{
             std::copy(msg.begin(), msg.end(), m_translator.m_buffer);
             m_translator.Reset();
-            for( auto getter: m_GetterAndSetters){
-                getter->Get( value, m_translator);
+            for (const auto& getter: m_GetterAndSetters) {
+                getter->Get(value, m_translator);
             }
-        } catch ( std::exception & ex ){
+        } catch (std::exception &ex) {
             return false;
         }
         return true;
     }
-    void Add( IGetterSetterPtr gs ){ m_GetterAndSetters.push_back( gs );}
+
+    void Add(const IGetterSetterPtr& gs) { m_GetterAndSetters.push_back(gs); }
 private:
      Translator m_translator;
     using GetSetList = std::vector<IGetterSetterPtr>;
@@ -141,7 +147,7 @@ private:
 
 #define FIELD(TYPE, NAME)               \
     public:                             \
-        void Set##NAME(const TYPE v){   \
+        void Set##NAME(const TYPE& v){  \
             m_##NAME = v;               \
         }                               \
         TYPE const Get##NAME() {        \
@@ -158,40 +164,26 @@ private:
          unsigned int Size##NAME(){     \
              return m_##NAME.size();    \
          }                              \
-         TYPE & Get( unsigned int pos){ \
+         TYPE & Get(unsigned int pos){  \
             return m_##NAME.Get(pos);   \
          }                              \
      private:                           \
          ParameterList<TYPE> m_##NAME;  \
 
 class Movie{
-    FIELD( std::string, Title );
-    FIELD( int32_t, ReleaseDate );
-    FIELD( std::string, Director );
-    FIELD_LIST( std::string, Actors );
+    FIELD(std::string, Title);
+    FIELD(int32_t, ReleaseDate);
+    FIELD(std::string, Director);
+    FIELD_LIST(std::string, Actors);
 };
 
-#define FIELD_LIST(TYPE, NAME)          \
-     public:                            \
-         void Add(TYPE & value){        \
-             m_##NAME.Add(value);       \
-         }                              \
-         unsigned int Size##NAME(){     \
-             return m_##NAME.size();    \
-         }                              \
-         TYPE & Get( unsigned int pos){ \
-            return m_##NAME.Get(pos);   \
-         }                              \
-     private:                           \
-         ParameterList<TYPE> m_##NAME;  \
-
-#define TRANSLATOR_GET_SET( OBJECT, TYPE, FIELD_NAME )                          \
+#define TRANSLATOR_GET_SET(OBJECT, TYPE, FIELD_NAME)                            \
 {                                                                               \
     IGetterSetter<OBJECT>::Ptr p = std::make_shared<GetterSetter<OBJECT, TYPE>>(\
          [this](OBJECT &obj, TYPE & v){ obj.Set##FIELD_NAME(v);},               \
          [this](OBJECT &obj, TYPE & v){ v = obj.Get##FIELD_NAME();}             \
     );                                                                          \
-    Add( p );                                                                   \
+    Add(p);                                                                     \
 }                                                                               \
 
 template< typename T>
@@ -202,8 +194,6 @@ public:
         TRANSLATOR_GET_SET(Movie, std::string, Director);
     }
 };
-
-
 
 int main() {
     Movie myMovie;
