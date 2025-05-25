@@ -7,6 +7,7 @@
 #include <functional>
 #include <iostream>
 #include <unordered_map>
+#include <unistd.h>
 
 template<class T>
 class WaitQueueTask {
@@ -77,14 +78,14 @@ public:
     virtual void operator()( Object & obj) = 0;
 };
 
-template <class Concrete, class Object>
+template <class ConcreteObject, class Object>
 class ConcreteCallbackFunctor: public CallbackFunctor<Object>{
 public:
-    using Callback = std::function< void (Concrete &)>;
+    using Callback = std::function< void (ConcreteObject &)>;
     ConcreteCallbackFunctor( Callback handler ):m_Handler(handler){}
     void operator()(Object & obj){
         try{
-            Concrete& c = dynamic_cast<Concrete &>(obj);
+            ConcreteObject& c = dynamic_cast<ConcreteObject &>(obj);
             m_Handler(c);
         }catch(...){
         }
@@ -93,22 +94,22 @@ private:
     Callback m_Handler;
 };
 
-template<class T, typename Type>
-class QueuedObjectHandler : public WaitQueueTask<T> {
+template<class Object, typename Type>
+class QueuedObjectHandler : public WaitQueueTask<Object> {
 protected:
-    using Callback = std::function<void (T &)>;
+    using Callback = std::function<void (Object &)>;
 
-    void Handle(T &v) override {
+    void Handle(Object &v) override {
         auto it = m_handlers.find(v.Type());
         if (it != m_handlers.end()) {
             m_handlers[v.Type()]->operator()(v);
         }
     }
 
-    void Add(Type index, typename CallbackFunctor<T>::Ptr c) { m_handlers[index] = c; }
+    void Add(Type index, typename CallbackFunctor<Object>::Ptr c) { m_handlers[index] = c; }
 
 private:
-    using Handlers = std::unordered_map<Type, typename CallbackFunctor<T>::Ptr>;
+    using Handlers = std::unordered_map<Type, typename CallbackFunctor<Object>::Ptr>;
     Handlers m_handlers;
 };
 
